@@ -92,8 +92,11 @@ Our RESTful API strictly follows the assignment requirements and standard HTTP s
 
 ## ✨ 4. UI & UX Features
 
-Instead of relying on clunky native browser inputs, this app delivers a polished user experience:
+Instead of a basic single-view form or relying on clunky native browser inputs, this app delivers an intuitive dual-perspective experience:
 
+- 🔄 **Dual-Perspective Role Switcher (Patient vs Staff Console):**
+  - **👤 Patient Portal:** Allows patients to book appointments, view timeline statuses, and cancel their own bookings without the awkwardness of self-confirming.
+  - **🩺 Staff/Clinic Console:** Empowers coordinators and doctors with queue management (Approve/Confirm, Reject/Cancel, Reopen, and Delete records) plus KPI overview cards and walk-in manual booking.
 - 🎨 **Modern Toast Notifications:** Clean pop-up feedback for successful actions (booking created, confirmed) and API errors (e.g. `409 Conflict` on overlapping slots).
 - 📅 **Custom Inline Calendar:** A fully custom calendar widget with a 'Today' quick-jump button.
 - 🕒 **Digital Time Wheel Picker:** An iOS-style scrollable custom time picker replacing native `<select>` dropdowns.
