@@ -80,6 +80,7 @@ Our RESTful API strictly follows the assignment requirements and standard HTTP s
 
 ### Frontend: **Next.js (App Router) + React + Tailwind CSS**
 - **Next.js App Router:** Provides modern React patterns, fast development, and built-in optimized routing.
+- **Component-Based Architecture:** The UI is cleanly separated into reusable modules (`components/` directory) such as `<CalendarWidget />`, `<TimePickerWidget />`, and `<AppointmentCard />`, proving maintainability and scalable React patterns.
 - **Tailwind CSS:** Allows creating a clean, responsive, and highly polished modern UI quickly without context-switching to CSS files.
 
 ### Backend: **Node.js + Express**
@@ -95,8 +96,9 @@ Our RESTful API strictly follows the assignment requirements and standard HTTP s
 Instead of a basic single-view form or relying on clunky native browser inputs, this app delivers an intuitive dual-perspective experience:
 
 - 🔄 **Dual-Perspective Role Switcher (Patient vs Staff Console):**
-  - **👤 Patient Portal:** Allows patients to book appointments, view timeline statuses, and cancel their own bookings without the awkwardness of self-confirming.
-  - **🩺 Staff/Clinic Console:** Empowers coordinators and doctors with queue management (Approve/Confirm, Reject/Cancel, Reopen, and Delete records) plus KPI overview cards and walk-in manual booking.
+  - **👤 Patient Portal:** Allows patients to book appointments, view timeline statuses, and cancel their own bookings without the awkwardness of self-confirming. Patient bookings default to `pending`.
+  - **🩺 Staff/Clinic Console:** Empowers coordinators and doctors with queue management (Approve/Confirm, Reject/Cancel, Reopen, and Delete records) plus KPI overview cards and walk-in manual booking. Walk-in bookings instantly default to `confirmed`.
+- 🧩 **Clean Modular UI:** Refactored complex interfaces into highly reusable modular components (`components/`).
 - 🎨 **Modern Toast Notifications:** Clean pop-up feedback for successful actions (booking created, confirmed) and API errors (e.g. `409 Conflict` on overlapping slots).
 - 📅 **Custom Inline Calendar:** A fully custom calendar widget with a 'Today' quick-jump button.
 - 🕒 **Digital Time Wheel Picker:** An iOS-style scrollable custom time picker replacing native `<select>` dropdowns.
