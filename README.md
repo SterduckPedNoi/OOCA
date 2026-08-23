@@ -103,6 +103,7 @@ Instead of a basic single-view form or relying on clunky native browser inputs, 
 - 🔒 **Smart Slot Validation:** Real-time visual disabling of time slots that are either in the past or already booked by someone else.
 - 🗑 **Safe Deletion:** Modal confirmation dialogs before deleting any appointment records.
 - 📊 **Real-time Status Filters:** Filter tabs (`All`, `Pending`, `Confirmed`, `Cancelled`) with live counts.
+- ⏱️ **Auto-Cancel Cron Job:** A backend process that runs every minute to automatically cancel `pending` appointments that have already passed their scheduled time.
 
 ---
 
@@ -112,8 +113,10 @@ If I had more time, I would focus on scaling and adding professional-grade featu
 
 1. **Pagination & Search:** The `/appointments` GET route currently fetches all records. In a production environment with large datasets, I would implement cursor or offset pagination (`?page=1&limit=10`) and a search bar by patient name.
 2. **Authentication & Role-based Access:** Add doctor/staff authentication (JWT or NextAuth) to control permissions for confirming or cancelling appointments.
-3. **Calendar View:** Add a full monthly/weekly visual calendar grid (e.g. FullCalendar) to view booked slots interactively in a dashboard.
-4. **Unit & Integration Tests:** Add Jest or Playwright test suites to automate API overlap testing and UI rendering.
+3. **Data Validation & Sanitization:** Integrate Zod or Joi to strictly validate request payloads and prevent SQL injection attacks.
+4. **Dockerization:** Provide a `Dockerfile` and `docker-compose.yml` to bundle the app and ensure a 100% reproducible testing environment for reviewers.
+5. **Rate Limiting:** Implement `express-rate-limit` to prevent API abuse and brute-force booking spam.
+6. **Unit & Integration Tests:** Add Jest or Playwright test suites to automate API overlap testing and UI rendering.
 
 ---
 

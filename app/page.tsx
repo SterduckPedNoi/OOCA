@@ -1,33 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-
-interface Appointment {
-  id: string | number;
-  patientName: string;
-  appointmentAt: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
-  createdAt?: string;
-}
-
-interface Toast {
-  id: number;
-  type: 'success' | 'error' | 'warning' | 'info';
-  title: string;
-  message: string;
-}
-
-const MORNING_SLOTS = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30'];
-const AFTERNOON_SLOTS = ['13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'];
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-const MINUTES_LIST = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
-
-const THAI_MONTHS = [
-  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-];
-
-const WEEKDAYS = ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'];
+import { Appointment, Toast } from '../components/types';
+import ToastContainer from '../components/ToastContainer';
+import DeleteModal from '../components/DeleteModal';
+import AppointmentCard from '../components/AppointmentCard';
+import CalendarWidget from '../components/CalendarWidget';
+import TimePickerWidget from '../components/TimePickerWidget';
+import { HOURS, MINUTES_LIST, MORNING_SLOTS, AFTERNOON_SLOTS, THAI_MONTHS, WEEKDAYS } from '../components/constants';
 
 export default function AppointmentApp() {
   // สลับมุมมอง: 'patient' (ผู้รับบริการ) vs 'staff' (เจ้าหน้าที่คลินิก/แพทย์)
@@ -117,6 +97,7 @@ export default function AppointmentApp() {
 
   // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAppointments(filterStatus);
     fetchAllAppointments();
 
@@ -153,6 +134,7 @@ export default function AppointmentApp() {
     }
 
     const map = new Map<string, { isBooked: boolean; isPast: boolean; status: 'pending' | 'confirmed' | null; patientName: string }>();
+    // eslint-disable-next-line react-hooks/purity
     const now = Date.now();
     const thirtyMinutes = 30 * 60 * 1000;
 
@@ -291,13 +273,20 @@ export default function AppointmentApp() {
         body: JSON.stringify({
           patientName: patientName.trim(),
           appointmentAt: combinedDateTime,
+          status: showStaffBookingModal ? 'confirmed' : 'pending',
         }),
       });
 
       const resData = await response.json();
 
       if (response.status === 201) {
-        showToast('success', 'ส่งคำขอนัดหมายสำเร็จ!', `สร้างนัดหมายของคุณ ${patientName} เรียบร้อยแล้ว (สถานะ: รอยืนยัน)`);
+        showToast(
+          'success',
+          showStaffBookingModal ? 'บันทึกนัดหมายสำเร็จ!' : 'ส่งคำขอนัดหมายสำเร็จ!',
+          showStaffBookingModal
+            ? `เพิ่มคิวให้ ${patientName} เรียบร้อยแล้ว (สถานะ: ยืนยันแล้ว)`
+            : `สร้างนัดหมายของคุณ ${patientName} เรียบร้อยแล้ว (สถานะ: รอยืนยัน)`
+        );
         setPatientName('');
         setShowStaffBookingModal(false);
         fetchAppointments(filterStatus);
@@ -377,10 +366,6 @@ export default function AppointmentApp() {
     return { total, pending, confirmed, cancelled };
   }, [allAppointments]);
 
-  // Calendar Helpers
-  const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
-  const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
-
   const prevMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -404,49 +389,6 @@ export default function AppointmentApp() {
     setCurrentYear(d.getFullYear());
     setCurrentMonth(d.getMonth());
     setSelectedDate(todayStr);
-  };
-
-  // Render Calendar Days
-  const renderCalendarDays = () => {
-    const totalDays = daysInMonth(currentYear, currentMonth);
-    const startDay = firstDayOfMonth(currentYear, currentMonth);
-    const days = [];
-
-    for (let i = 0; i < startDay; i++) {
-      days.push(<div key={`empty-${i}`} className="h-8 w-full"></div>);
-    }
-
-    for (let d = 1; d <= totalDays; d++) {
-      const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const isSelected = selectedDate === dateString;
-      const isTodayDate = todayStr === dateString;
-      const isPastDate = dateString < todayStr;
-
-      days.push(
-        <button
-          key={d}
-          type="button"
-          disabled={isPastDate}
-          onClick={() => setSelectedDate(dateString)}
-          className={`h-8 w-full rounded-xl text-xs font-bold transition flex items-center justify-center relative ${
-            isPastDate
-              ? 'text-slate-300 cursor-not-allowed line-through'
-              : isSelected
-              ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30 scale-105 z-10'
-              : isTodayDate
-              ? 'bg-blue-50 text-blue-700 border border-blue-300 hover:bg-blue-100'
-              : 'text-slate-700 hover:bg-slate-100'
-          }`}
-        >
-          {d}
-          {isTodayDate && !isSelected && (
-            <span className="absolute bottom-1 w-1 h-1 bg-blue-600 rounded-full"></span>
-          )}
-        </button>
-      );
-    }
-
-    return days;
   };
 
   // Reusable Booking Form
@@ -475,80 +417,16 @@ export default function AppointmentApp() {
       </div>
 
       {/* 2. CUSTOM INLINE CALENDAR */}
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
-            เลือกวันที่ <span className="text-rose-500">*</span>
-          </label>
-          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-lg border border-blue-100">
-            {selectedDate
-              ? new Date(`${selectedDate}T00:00:00`).toLocaleDateString('th-TH', {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                  year: '2-digit',
-                })
-              : 'ยังไม่ได้เลือก'}
-          </span>
-        </div>
-
-        {/* Calendar Widget Card */}
-        <div className="p-3 bg-slate-50/80 border border-slate-200 rounded-2xl">
-          <div className="flex items-center justify-between mb-2 px-1">
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-slate-800 text-xs sm:text-sm">
-                {THAI_MONTHS[currentMonth]} {currentYear + 543}
-              </span>
-              <button
-                type="button"
-                onClick={goToToday}
-                title="กลับมาวันนี้"
-                className="text-[10px] px-2 py-0.5 font-bold rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
-              >
-                Today
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={prevMonth}
-                className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 transition"
-                aria-label="Previous Month"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={nextMonth}
-                className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 transition"
-                aria-label="Next Month"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-7 gap-1 text-center mb-1">
-            {WEEKDAYS.map((w, idx) => (
-              <span
-                key={w}
-                className={`text-[10px] font-bold ${
-                  idx === 0 ? 'text-rose-500' : idx === 6 ? 'text-blue-500' : 'text-slate-400'
-                }`}
-              >
-                {w}
-              </span>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7 gap-1">{renderCalendarDays()}</div>
-        </div>
-      </div>
+      <CalendarWidget
+        currentYear={currentYear}
+        currentMonth={currentMonth}
+        selectedDate={selectedDate}
+        todayStr={todayStr}
+        onDateSelect={setSelectedDate}
+        onPrevMonth={prevMonth}
+        onNextMonth={nextMonth}
+        onGoToToday={goToToday}
+      />
 
       {/* 3. TIME SELECTION */}
       <div>
@@ -960,7 +838,7 @@ export default function AppointmentApp() {
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
             <h3 className="text-lg font-bold text-slate-900">ยืนยันการลบข้อมูล?</h3>
             <p className="text-sm text-slate-500 mt-2">
-              ต้องการลบนัดหมายของ <span className="font-bold text-slate-900">"{deleteModal.appointment?.patientName}"</span> ออกจากระบบหรือไม่?
+              ต้องการลบนัดหมายของ <span className="font-bold text-slate-900">&quot;{deleteModal.appointment?.patientName}&quot;</span> ออกจากระบบหรือไม่?
             </p>
             <div className="flex gap-3 mt-6">
               <button
