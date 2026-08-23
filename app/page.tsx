@@ -89,7 +89,7 @@ export default function AppointmentApp() {
         showToast('error', 'เกิดข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลรายการนัดหมายได้');
       }
     } catch (error) {
-      showToast('error', 'การเชื่อมต่อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ Backend ได้');
+      showToast('error', 'การเชื่อมต่อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
     } finally {
       setLoading(false);
     }
@@ -429,272 +429,20 @@ export default function AppointmentApp() {
       />
 
       {/* 3. TIME SELECTION */}
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
-            เลือกเวลา (ช่วงละ 30 นาที) <span className="text-rose-500">*</span>
-          </label>
-
-          <div className="flex bg-slate-100 p-0.5 rounded-lg text-[11px] font-bold border border-slate-200">
-            <button
-              type="button"
-              onClick={() => setTimeMode('slot')}
-              className={`px-2 py-0.5 rounded-md transition ${
-                timeMode === 'slot' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              รอบมาตรฐาน
-            </button>
-            <button
-              type="button"
-              onClick={() => setTimeMode('custom')}
-              className={`px-2 py-0.5 rounded-md transition ${
-                timeMode === 'custom' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-500 hover:text-slate-800'
-              }`}
-            >
-              กำหนดเวลาเอง
-            </button>
-          </div>
-        </div>
-
-        {timeMode === 'slot' ? (
-          /* Mode 1: Quick Slots Grid */
-          <div className="p-3 bg-slate-50/80 border border-slate-200 rounded-2xl space-y-2.5">
-            <div>
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">
-                🌅 ช่วงเช้า (Morning)
-              </span>
-              <div className="grid grid-cols-3 gap-1.5">
-                {MORNING_SLOTS.map((slot) => {
-                  const { isBooked, isPast, status } = checkSlotBookingStatus(selectedDate, slot);
-                  const isSelected = selectedSlot === slot;
-                  const isDisabled = isBooked || isPast;
-
-                  return (
-                    <button
-                      key={slot}
-                      type="button"
-                      disabled={isDisabled}
-                      onClick={() => setSelectedSlot(slot)}
-                      className={`h-[48px] px-1.5 rounded-xl font-bold transition flex flex-col items-center justify-center border ${
-                        isPast
-                          ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed opacity-50'
-                          : isBooked
-                          ? 'bg-rose-50/80 text-rose-400 border-rose-200 cursor-not-allowed opacity-75'
-                          : isSelected
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25 scale-[1.02]'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-blue-50/40'
-                      }`}
-                    >
-                      <span className={`text-xs ${isPast ? 'line-through' : ''}`}>{slot} น.</span>
-                      <span
-                        className={`text-[9px] leading-tight font-medium ${
-                          isPast
-                            ? 'text-slate-400 font-normal'
-                            : isBooked
-                            ? 'text-rose-500 font-semibold'
-                            : isSelected
-                            ? 'text-blue-100'
-                            : 'text-emerald-600'
-                        }`}
-                      >
-                        {isPast
-                          ? 'ผ่านไปแล้ว'
-                          : isBooked
-                          ? status === 'confirmed'
-                            ? 'ยืนยันแล้ว'
-                            : 'รอยืนยัน'
-                          : 'ว่าง'}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1">
-                ☀️ ช่วงบ่าย (Afternoon)
-              </span>
-              <div className="grid grid-cols-3 gap-1.5">
-                {AFTERNOON_SLOTS.map((slot) => {
-                  const { isBooked, isPast, status } = checkSlotBookingStatus(selectedDate, slot);
-                  const isSelected = selectedSlot === slot;
-                  const isDisabled = isBooked || isPast;
-
-                  return (
-                    <button
-                      key={slot}
-                      type="button"
-                      disabled={isDisabled}
-                      onClick={() => setSelectedSlot(slot)}
-                      className={`h-[48px] px-1.5 rounded-xl font-bold transition flex flex-col items-center justify-center border ${
-                        isPast
-                          ? 'bg-slate-100 text-slate-300 border-slate-200 cursor-not-allowed opacity-50'
-                          : isBooked
-                          ? 'bg-rose-50/80 text-rose-400 border-rose-200 cursor-not-allowed opacity-75'
-                          : isSelected
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/25 scale-[1.02]'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300 hover:bg-blue-50/40'
-                      }`}
-                    >
-                      <span className={`text-xs ${isPast ? 'line-through' : ''}`}>{slot} น.</span>
-                      <span
-                        className={`text-[9px] leading-tight font-medium ${
-                          isPast
-                            ? 'text-slate-400 font-normal'
-                            : isBooked
-                            ? 'text-rose-500 font-semibold'
-                            : isSelected
-                            ? 'text-blue-100'
-                            : 'text-emerald-600'
-                        }`}
-                      >
-                        {isPast
-                          ? 'ผ่านไปแล้ว'
-                          : isBooked
-                          ? status === 'confirmed'
-                            ? 'ยืนยันแล้ว'
-                            : 'รอยืนยัน'
-                          : 'ว่าง'}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-slate-200/60 flex flex-wrap items-center justify-between text-[10px] text-slate-500 px-1 font-medium gap-2">
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span> ว่าง
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-rose-400"></span> จองแล้ว
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-slate-300"></span> ผ่านไปแล้ว
-              </span>
-            </div>
-          </div>
-        ) : (
-          /* Mode 2: Custom Digital Scrollable Time Picker with Hour & Minute auto-disable */
-          <div className="p-3 bg-slate-50/80 border border-slate-200 rounded-2xl space-y-3">
-            <div className="bg-white border border-slate-200 rounded-xl p-2.5 flex items-center justify-between shadow-xs">
-              <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                เวลาที่เลือก
-              </span>
-              <span className="text-base font-black text-blue-700 font-mono tracking-wider">
-                {customHour} : {customMinute} น.
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              {/* Hour Column */}
-              <div>
-                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1 text-center">
-                  ชั่วโมง (00 - 23)
-                </label>
-                <div className="h-40 overflow-y-auto p-1 bg-white border border-slate-200 rounded-xl space-y-1 shadow-inner scrollbar-thin">
-                  {HOURS.map((h) => {
-                    const hourInfo = hourAvailabilityMap.get(h) || { isHourPast: false, isFullyBooked: false, isHourDisabled: false };
-                    const { isHourPast, isFullyBooked, isHourDisabled } = hourInfo;
-                    const isSelected = customHour === h && !isHourDisabled;
-
-                    return (
-                      <button
-                        key={h}
-                        type="button"
-                        disabled={isHourDisabled}
-                        onClick={() => {
-                          setCustomHour(h);
-                          const firstFreeMin = MINUTES_LIST.find((m) => {
-                            const slot = slotStatusMap.get(`${h}:${m}`);
-                            return slot ? !slot.isBooked && !slot.isPast : true;
-                          });
-                          if (firstFreeMin) setCustomMinute(firstFreeMin);
-                        }}
-                        className={`w-full py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-between px-2 ${
-                          isHourPast
-                            ? 'bg-slate-100 text-slate-300 cursor-not-allowed line-through opacity-50'
-                            : isFullyBooked
-                            ? 'bg-rose-50/80 text-rose-400 border border-rose-200 cursor-not-allowed line-through opacity-75'
-                            : isSelected
-                            ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/25 scale-[1.02]'
-                            : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-                        }`}
-                      >
-                        <span className={isHourDisabled ? 'line-through' : ''}>{h} : 00 น.</span>
-                        {isHourPast ? (
-                          <span className="text-[9px] font-normal text-slate-400">ผ่านแล้ว</span>
-                        ) : isFullyBooked ? (
-                          <span className="text-[9px] font-bold text-rose-500">เต็มแล้ว</span>
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Minute Column */}
-              <div>
-                <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mb-1 text-center">
-                  นาที (MINUTES)
-                </label>
-                <div className="h-40 overflow-y-auto p-1 bg-white border border-slate-200 rounded-xl space-y-1 shadow-inner scrollbar-thin">
-                  {MINUTES_LIST.map((m) => {
-                    const slot = slotStatusMap.get(`${customHour}:${m}`) || { isBooked: false, isPast: false, status: null };
-                    const { isBooked, isPast, status } = slot;
-                    const isDisabled = isBooked || isPast;
-                    const isSelected = customMinute === m && !isDisabled;
-
-                    return (
-                      <button
-                        key={m}
-                        type="button"
-                        disabled={isDisabled}
-                        onClick={() => setCustomMinute(m)}
-                        className={`w-full py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-between px-2 ${
-                          isPast
-                            ? 'bg-slate-100 text-slate-300 cursor-not-allowed line-through opacity-50'
-                            : isBooked
-                            ? 'bg-rose-50 text-rose-400 border border-rose-200 cursor-not-allowed opacity-75'
-                            : isSelected
-                            ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/25 scale-[1.02]'
-                            : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
-                        }`}
-                      >
-                        <span className={isPast ? 'line-through' : ''}>:{m} นาที</span>
-                        {isPast ? (
-                          <span className="text-[9px] text-slate-400 font-normal">ผ่านแล้ว</span>
-                        ) : isBooked ? (
-                          <span className="text-[9px] text-rose-500 font-semibold">
-                            {status === 'confirmed' ? 'ยืนยันแล้ว' : 'รอยืนยัน'}
-                          </span>
-                        ) : null}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-1.5 border-t border-slate-200/60 flex flex-wrap items-center justify-between text-[10px] text-slate-500 px-1 font-medium gap-2">
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span> ว่าง
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-rose-400"></span> จองแล้ว
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-slate-300"></span> ผ่านไปแล้ว
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
+      <TimePickerWidget
+        timeMode={timeMode}
+        selectedDate={selectedDate}
+        selectedSlot={selectedSlot}
+        customHour={customHour}
+        customMinute={customMinute}
+        onTimeModeChange={setTimeMode}
+        onSlotSelect={setSelectedSlot}
+        onCustomHourChange={setCustomHour}
+        onCustomMinuteChange={setCustomMinute}
+        checkSlotBookingStatus={checkSlotBookingStatus}
+        hourAvailabilityMap={hourAvailabilityMap}
+        slotStatusMap={slotStatusMap}
+      />
 
       {/* Alert if selected slot is past or booked */}
       {currentSlotStatus.isPast ? (
@@ -740,11 +488,10 @@ export default function AppointmentApp() {
       <button
         type="submit"
         disabled={isSubmitting || currentSlotStatus.isBooked || currentSlotStatus.isPast}
-        className={`w-full py-3 px-6 rounded-2xl font-bold text-sm text-white shadow-lg transition duration-200 flex items-center justify-center gap-2 ${
-          currentSlotStatus.isBooked || currentSlotStatus.isPast
+        className={`w-full py-3 px-6 rounded-2xl font-bold text-sm text-white shadow-lg transition duration-200 flex items-center justify-center gap-2 ${currentSlotStatus.isBooked || currentSlotStatus.isPast
             ? 'bg-slate-400 cursor-not-allowed shadow-none'
             : 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/25 active:scale-[0.98]'
-        }`}
+          }`}
       >
         {isSubmitting ? (
           <>
@@ -770,93 +517,15 @@ export default function AppointmentApp() {
     <div className="min-h-screen bg-slate-50/60 font-sans text-slate-800 antialiased selection:bg-blue-500 selection:text-white pb-16">
 
       {/* ================= FLOATING TOAST NOTIFICATION CONTAINER ================= */}
-      <div className="fixed top-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`pointer-events-auto p-4 rounded-2xl shadow-xl border flex items-start gap-3 transform transition-all duration-300 animate-slide-in backdrop-blur-md ${
-              toast.type === 'success'
-                ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900 shadow-emerald-900/10'
-                : toast.type === 'error'
-                ? 'bg-rose-50/95 border-rose-200 text-rose-900 shadow-rose-900/10'
-                : toast.type === 'warning'
-                ? 'bg-amber-50/95 border-amber-200 text-amber-900 shadow-amber-900/10'
-                : 'bg-blue-50/95 border-blue-200 text-blue-900 shadow-blue-900/10'
-            }`}
-          >
-            <div className="mt-0.5 shrink-0">
-              {toast.type === 'success' && (
-                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              )}
-              {toast.type === 'error' && (
-                <div className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-              )}
-              {toast.type === 'warning' && (
-                <div className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01" />
-                  </svg>
-                </div>
-              )}
-              {toast.type === 'info' && (
-                <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01" />
-                  </svg>
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <h4 className="font-bold text-sm">{toast.title}</h4>
-              <p className="text-xs mt-0.5 leading-relaxed opacity-90">{toast.message}</p>
-            </div>
-
-            <button
-              onClick={() => removeToast(toast.id)}
-              className="text-slate-400 hover:text-slate-600 transition p-1"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        ))}
-      </div>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       {/* ================= DELETE CONFIRMATION MODAL ================= */}
-      {deleteModal.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
-            <h3 className="text-lg font-bold text-slate-900">ยืนยันการลบข้อมูล?</h3>
-            <p className="text-sm text-slate-500 mt-2">
-              ต้องการลบนัดหมายของ <span className="font-bold text-slate-900">&quot;{deleteModal.appointment?.patientName}&quot;</span> ออกจากระบบหรือไม่?
-            </p>
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setDeleteModal({ isOpen: false, appointment: null })}
-                className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition"
-              >
-                ยกเลิก
-              </button>
-              <button
-                onClick={confirmDeleteAppointment}
-                className="flex-1 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-rose-600/25 transition"
-              >
-                ลบข้อมูล
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteModal
+        isOpen={deleteModal.isOpen}
+        appointment={deleteModal.appointment}
+        onClose={() => setDeleteModal({ isOpen: false, appointment: null })}
+        onConfirm={confirmDeleteAppointment}
+      />
 
       {/* ================= FIXED & SCROLLABLE STAFF WALK-IN BOOKING MODAL ================= */}
       {showStaffBookingModal && (
@@ -928,11 +597,10 @@ export default function AppointmentApp() {
                 setUserRole('patient');
                 showToast('info', 'สลับมุมมอง', 'เข้าสู่มุมมองผู้รับบริการ (Patient View)');
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
-                userRole === 'patient'
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${userRole === 'patient'
                   ? 'bg-white text-blue-700 shadow-md shadow-slate-300 scale-[1.02]'
                   : 'text-slate-600 hover:text-slate-900'
-              }`}
+                }`}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -946,11 +614,10 @@ export default function AppointmentApp() {
                 setUserRole('staff');
                 showToast('info', 'สลับมุมมอง', 'เข้าสู่มุมมองเจ้าหน้าที่คลินิก/แพทย์ (Staff Console)');
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${
-                userRole === 'staff'
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 ${userRole === 'staff'
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 scale-[1.02]'
                   : 'text-slate-600 hover:text-slate-900'
-              }`}
+                }`}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -958,9 +625,8 @@ export default function AppointmentApp() {
               <span>🩺 เจ้าหน้าที่/แพทย์</span>
               {stats.pending > 0 && (
                 <span
-                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                    userRole === 'staff' ? 'bg-amber-400 text-slate-900' : 'bg-amber-500 text-white animate-pulse'
-                  }`}
+                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${userRole === 'staff' ? 'bg-amber-400 text-slate-900' : 'bg-amber-500 text-white animate-pulse'
+                    }`}
                 >
                   {stats.pending}
                 </span>
@@ -1030,11 +696,10 @@ export default function AppointmentApp() {
                     <button
                       key={tab.label}
                       onClick={() => handleFilterChange(tab.value)}
-                      className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition ${
-                        filterStatus === tab.value
+                      className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold transition ${filterStatus === tab.value
                           ? 'bg-white text-blue-700 shadow-xs'
                           : 'text-slate-600 hover:text-slate-900'
-                      }`}
+                        }`}
                     >
                       {tab.label}
                     </button>
@@ -1073,28 +738,26 @@ export default function AppointmentApp() {
                           <div className="flex items-center gap-2">
                             <h3 className="font-bold text-slate-900 text-sm">{appt.patientName}</h3>
                             <span
-                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                                appt.status === 'confirmed'
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${appt.status === 'confirmed'
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : appt.status === 'cancelled'
-                                  ? 'bg-rose-100 text-rose-800'
-                                  : 'bg-amber-100 text-amber-800'
-                              }`}
+                                    ? 'bg-rose-100 text-rose-800'
+                                    : 'bg-amber-100 text-amber-800'
+                                }`}
                             >
                               <span
-                                className={`w-1.5 h-1.5 rounded-full ${
-                                  appt.status === 'confirmed'
+                                className={`w-1.5 h-1.5 rounded-full ${appt.status === 'confirmed'
                                     ? 'bg-emerald-500'
                                     : appt.status === 'cancelled'
-                                    ? 'bg-rose-500'
-                                    : 'bg-amber-500'
-                                }`}
+                                      ? 'bg-rose-500'
+                                      : 'bg-amber-500'
+                                  }`}
                               ></span>
                               {appt.status === 'confirmed'
                                 ? 'ยืนยันแล้ว'
                                 : appt.status === 'cancelled'
-                                ? 'ยกเลิกแล้ว'
-                                : 'รอยืนยัน'}
+                                  ? 'ยกเลิกแล้ว'
+                                  : 'รอยืนยัน'}
                             </span>
                           </div>
 
@@ -1241,17 +904,15 @@ export default function AppointmentApp() {
                   <button
                     key={tab.label}
                     onClick={() => handleFilterChange(tab.value)}
-                    className={`py-2 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
-                      filterStatus === tab.value
+                    className={`py-2 px-3.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${filterStatus === tab.value
                         ? 'bg-slate-900 text-white shadow-sm'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
+                      }`}
                   >
                     <span>{tab.label}</span>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] ${
-                        filterStatus === tab.value ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-700'
-                      }`}
+                      className={`px-2 py-0.5 rounded-full text-[10px] ${filterStatus === tab.value ? 'bg-slate-700 text-white' : 'bg-slate-200 text-slate-700'
+                        }`}
                     >
                       {tab.count}
                     </span>
@@ -1285,140 +946,12 @@ export default function AppointmentApp() {
               ) : (
                 <div className="space-y-3.5">
                   {appointments.map((appt) => (
-                    <div
+                    <AppointmentCard
                       key={appt.id}
-                      className={`group bg-white hover:bg-slate-50/90 border rounded-2xl p-4 sm:p-5 transition duration-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${
-                        appt.status === 'pending' ? 'border-amber-200/90 bg-amber-50/20' : 'border-slate-200/90'
-                      }`}
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2.5">
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-mono font-bold">
-                            #{appt.id}
-                          </span>
-                          <h3 className="font-bold text-slate-900 text-base">{appt.patientName}</h3>
-
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                              appt.status === 'confirmed'
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                : appt.status === 'cancelled'
-                                ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                                : 'bg-amber-100 text-amber-800 border border-amber-200 shadow-xs'
-                            }`}
-                          >
-                            <span
-                              className={`w-2 h-2 rounded-full ${
-                                appt.status === 'confirmed'
-                                  ? 'bg-emerald-500'
-                                  : appt.status === 'cancelled'
-                                  ? 'bg-rose-500'
-                                  : 'bg-amber-500'
-                              }`}
-                            ></span>
-                            {appt.status === 'confirmed'
-                              ? 'ยืนยันแล้ว'
-                              : appt.status === 'cancelled'
-                              ? 'ยกเลิก'
-                              : 'รอยืนยัน (Pending)'}
-                          </span>
-                        </div>
-
-                        {/* Appointment DateTime info */}
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                          <span className="flex items-center gap-1">
-                            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            {new Date(appt.appointmentAt).toLocaleDateString('th-TH', {
-                              weekday: 'short',
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                            })}
-                          </span>
-                          <span className="flex items-center gap-1 font-bold text-slate-700">
-                            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {new Date(appt.appointmentAt).toLocaleTimeString('th-TH', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}{' '}
-                            น.
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Staff Full Action Controls */}
-                      <div className="flex flex-wrap items-center gap-2 self-end lg:self-center">
-                        {/* Pending: Staff can Confirm or Cancel */}
-                        {appt.status === 'pending' && (
-                          <>
-                            <button
-                              onClick={() => handleUpdateStatus(appt.id, 'confirmed')}
-                              title="อนุมัติและยืนยันนัดหมายนี้"
-                              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition duration-150 flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                              </svg>
-                              ยืนยันนัดหมาย
-                            </button>
-                            <button
-                              onClick={() => handleUpdateStatus(appt.id, 'cancelled')}
-                              title="ปฏิเสธ/ยกเลิกนัดหมายนี้"
-                              className="px-3.5 py-2 bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 text-xs font-bold rounded-xl transition duration-150 flex items-center gap-1.5 shadow-xs"
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                              ปฏิเสธ / ยกเลิก
-                            </button>
-                          </>
-                        )}
-
-                        {/* Confirmed: Staff can Cancel if needed */}
-                        {appt.status === 'confirmed' && (
-                          <button
-                            onClick={() => handleUpdateStatus(appt.id, 'cancelled')}
-                            title="ยกเลิกนัดหมายนี้"
-                            className="px-3 py-2 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-slate-200"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            ยกเลิกนัดหมาย
-                          </button>
-                        )}
-
-                        {/* Cancelled: Staff can Reopen to Pending */}
-                        {appt.status === 'cancelled' && (
-                          <button
-                            onClick={() => handleUpdateStatus(appt.id, 'pending')}
-                            title="เปลี่ยนกลับเป็นรอยืนยันอีกครั้ง"
-                            className="px-3 py-2 bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-800 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-slate-200"
-                          >
-                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            กู้คืนเป็นรอยืนยัน
-                          </button>
-                        )}
-
-                        {/* Delete Button */}
-                        <button
-                          onClick={() => setDeleteModal({ isOpen: true, appointment: appt })}
-                          title="ลบข้อมูลออกจากฐานข้อมูลถาวร"
-                          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition border border-transparent hover:border-rose-200"
-                          aria-label="Delete"
-                        >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
+                      appt={appt}
+                      onUpdateStatus={handleUpdateStatus}
+                      onDeleteClick={(appointment) => setDeleteModal({ isOpen: true, appointment })}
+                    />
                   ))}
                 </div>
               )}
